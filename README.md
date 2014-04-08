@@ -91,8 +91,11 @@ optional arguments:
                         geometry, mouse clicks, number of keys pressed and key
                         timings will still be stored, but not the actual
                         letters. Key timings are stored to enable activity
-                        calculation in selfstats. If this switch is used,
-                        you will never be asked for password.
+                        calculation in selfstats. If this switch is used, you
+                        will never be asked for password.
+  -r, --no-repeat       Do not store special characters as repeated
+                        characters.
+  -s, --report-space    Report space as <[Space]>.
   --change-password     Change the password used to encrypt the keys columns
                         and exit.
 ```

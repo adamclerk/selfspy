@@ -54,12 +54,14 @@ class KeyPress:
 
 
 class ActivityStore:
-    def __init__(self, db_name, encrypter=None, store_text=True):
+    def __init__(self, db_name, encrypter=None, store_text=True, repeat_char=True, report_space=True):
         self.session_maker = models.initialize(db_name)
 
         models.ENCRYPTER = encrypter
 
         self.store_text = store_text
+        self.repeat_char = repeat_char
+        self.report_space = report_space
         self.curtext = u""
 
         self.key_presses = []
@@ -93,6 +95,7 @@ class ActivityStore:
         self.sniffer.key_hook = self.got_key
         self.sniffer.mouse_button_hook = self.got_mouse_click
         self.sniffer.mouse_move_hook = self.got_mouse_move
+        self.sniffer.report_space = self.report_space
 
         self.sniffer.run()
 
@@ -160,7 +163,8 @@ class ActivityStore:
 
     def store_keys(self):
         """ Stores the current queued key-presses """
-        self.filter_many()
+        if self.repeat_char:
+            self.filter_many()
 
         if self.key_presses:
             keys = [press.key for press in self.key_presses]

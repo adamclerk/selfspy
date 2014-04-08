@@ -47,6 +47,7 @@ class Sniffer:
         self.mouse_button_hook = lambda x: True
         self.mouse_move_hook = lambda x: True
         self.screen_hook = lambda x: True
+        self.report_space = lambda x: False
 
         self.contextEventMask = [X.KeyPress, X.MotionNotify]
 

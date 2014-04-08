@@ -32,6 +32,7 @@ class SnifferThread(threading.Thread):
         self.mouse_button_hook = lambda x: True
         self.mouse_move_hook = lambda x: True
         self.screen_hook = lambda x: True
+        self.report_space = lambda x: False
         self.remap = {
                 248: u"\xf8",
                 216: u"\xd8",
@@ -91,6 +92,10 @@ class SnifferThread(threading.Thread):
             string = self.remap[event.Ascii]
         else:
             string = unicode(chr(event.Ascii))
+        
+        if (self.report_space && string == " "):
+            string = "Space"
+
         self.key_hook(str(event.Ascii), modifiers, string, False)
         self.screen_hook(str(event.Window), event.WindowName.decode(self.encoding), 0, 0, 0, 0)
         return True
