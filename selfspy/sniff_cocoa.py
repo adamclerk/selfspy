@@ -37,6 +37,7 @@ class Sniffer:
         self.mouse_button_hook = lambda x: True
         self.mouse_move_hook = lambda x: True
         self.screen_hook = lambda x: True
+        self.report_space = lambda x: False
 
     def createAppDelegate(self):
         sc = self
@@ -141,6 +142,8 @@ class Sniffer:
                     character = "Enter"
                 elif event.keyCode() is 51:
                     character = "Backspace"
+                elif ((event.keyCode() is 49) and self.report_space):
+                    character = "Space"
                 self.key_hook(event.keyCode(),
                               modifiers,
                               keycodes.get(character,

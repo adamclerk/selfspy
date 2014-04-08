@@ -93,6 +93,7 @@ optional arguments:
                         letters. Key timings are stored to enable activity
                         calculation in selfstats. If this switch is used,
                         you will never be asked for password.
+  -s, --report-space    Report space as <[Space]>.
   --change-password     Change the password used to encrypt the keys columns
                         and exit.
 ```
