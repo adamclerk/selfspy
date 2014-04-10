@@ -54,12 +54,13 @@ class KeyPress:
 
 
 class ActivityStore:
-    def __init__(self, db_name, encrypter=None, store_text=True):
+    def __init__(self, db_name, encrypter=None, store_text=True, human_readable=False):
         self.session_maker = models.initialize(db_name)
 
         models.ENCRYPTER = encrypter
 
         self.store_text = store_text
+        self.human_readable = human_readable
         self.curtext = u""
 
         self.key_presses = []

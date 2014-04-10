@@ -54,6 +54,8 @@ def parse_config():
 
     parser.add_argument('-n', '--no-text', action='store_true', help='Do not store what you type. This will make your database smaller and less sensitive to security breaches. Process name, window titles, window geometry, mouse clicks, number of keys pressed and key timings will still be stored, but not the actual letters. Key timings are stored to enable activity calculation in selfstats. If this switch is used, you will never be asked for password.')
 
+    parser.add_argument('-b', '--human-readable', action='store_true', help='Save a human readable, honoring backspaces, version of your text')
+
     parser.add_argument('--change-password', action="store_true", help='Change the password used to encrypt the keys columns and exit.')
 
     return parser.parse_args()
@@ -107,7 +109,8 @@ def main():
         print 'Re-encrypting your keys...'
         astore = ActivityStore(os.path.join(args['data_dir'], cfg.DBNAME),
                                encrypter,
-                               store_text=(not args['no_text']))
+                               store_text=(not args['no_text']),
+                               human_readable=args['human_readable'])
         astore.change_password(new_encrypter)
         # delete the old password.digest
         os.remove(os.path.join(args['data_dir'], check_password.DIGEST_NAME))
@@ -118,7 +121,8 @@ def main():
 
     astore = ActivityStore(os.path.join(args['data_dir'], cfg.DBNAME),
                            encrypter,
-                           store_text=(not args['no_text']))
+                           store_text=(not args['no_text']),
+                           human_readable=args['human_readable'])
     cfg.LOCK.acquire()
     try:
         astore.run()
