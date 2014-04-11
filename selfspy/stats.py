@@ -45,7 +45,7 @@ sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 ACTIVE_SECONDS = 180
 PERIOD_LOOKUP = {'s': 'seconds', 'm': 'minutes', 'h': 'hours', 'd': 'days', 'w': 'weeks'}
 ACTIVITY_ACTIONS = {'active', 'periods', 'pactive', 'tactive', 'ratios'}
-SUMMARY_ACTIONS = ACTIVITY_ACTIONS.union({'pkeys', 'tkeys', 'key_freqs', 'clicks', 'ratios'})
+SUMMARY_ACTIONS = ACTIVITY_ACTIONS.union({'pkeys', 'tkeys', 'key_freqs', 'text_freqs', 'clicks', 'ratios'})
 
 PROCESS_ACTIONS = {'pkeys', 'pactive'}
 WINDOW_ACTIONS = {'tkeys', 'tactive'}
@@ -196,6 +196,8 @@ class Selfstats:
             self.need_text = True
         if self.args['showtext']:
             self.need_text = True
+        if self.args['text_freqs']:
+            self.need_text = True
         cutoff = [self.args[k] for k in ACTIVITY_ACTIONS if self.args[k]]
         if cutoff:
             if any(c != cutoff[0] for c in cutoff):
@@ -328,6 +330,7 @@ class Selfstats:
         processes = {}
         windows = {}
         timings = []
+        words = []
         keys = Counter()
         for row in self.filter_keys():
             d = {'nr': 1,
@@ -343,6 +346,9 @@ class Selfstats:
 
             if self.args['key_freqs']:
                 keys.update(row.decrypt_keys())
+
+            if self.args['text_freqs']:
+                words.append(row.decrypt_text())
 
         for click in self.filter_clicks():
             d = {'noscroll_clicks': click.button not in [4, 5],
@@ -362,6 +368,9 @@ class Selfstats:
         self.summary = sumd
         if self.args['key_freqs']:
             self.summary['key_freqs'] = keys
+
+        if self.args['text_freqs']:
+            self.summary['text_freqs'] = ''.join(words)
 
     def show_summary(self):
         print '%d keystrokes in %d key sequences,' % (self.summary.get('keystrokes', 0), self.summary.get('nr', 0)),
@@ -390,6 +399,17 @@ class Selfstats:
             print 'Key frequencies:'
             for key, val in self.summary['key_freqs'].most_common():
                 print key, val
+            print
+
+        if self.args['text_freqs']:
+            print 'Text frequencies:'
+            try:
+                textrex = re.compile(self.args['text_freqs'], re.I)
+            except re.error, e:
+                print 'Error in regular expression', str(e)
+                sys.exit(1)
+            occurances = textrex.findall(self.summary['text_freqs'])
+            print 'Found %s occurances of "%s"' % (len(occurances), self.args['text_freqs'])
             print
 
         if self.args['pkeys']:
@@ -493,7 +513,8 @@ def parse_config():
     parser.add_argument('--clicks', action='store_true', help='Summarize number of mouse button clicks for all buttons.')
 
     parser.add_argument('--key-freqs', action='store_true', help='Summarize a table of absolute and relative number of keystrokes for each used key during the time period. Requires password.')
-
+    parser.add_argument('--text-freqs', type=str, metavar='regexp', help='Summarize text frequency across title or process')
+    
     parser.add_argument('--active', type=int, metavar='seconds', nargs='?', const=ACTIVE_SECONDS, help='Summarize total time spent active during the period. The optional argument gives how many seconds after each mouse click (including scroll up or down) or keystroke that you are considered active. Default is %d.' % ACTIVE_SECONDS)
 
     parser.add_argument('--ratios', type=int, metavar='seconds', nargs='?', const=ACTIVE_SECONDS, help='Summarize the ratio between different metrics in the given period. "Clicks" will not include up or down scrolling. The optional argument is the "seconds" cutoff for calculating active use, like --active.')
